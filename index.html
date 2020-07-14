@@ -5,6 +5,7 @@
     </head>
     <body>
         <h1>drone-kit training</h1>
+        <h2>Actions</h2>
         <div>
             <button id="send_arm">ARM</button>
         </div>
@@ -22,15 +23,17 @@
             <input type="text" id="text_goto_dist" value="100"/>
             <button id="send_goto">go</button>
         </div>
+        <div>
+            <button id="send_rtl">RTL</button>
+        </div>
         <h2>Attributes</h2>
         <div>Arm: <p id="arm" style="display: inline-block;"></p></div>
         <div>Lat: <p id="lat" style="display: inline-block;"></p></div>
         <div>Lon: <p id="lon" style="display: inline-block;"></p></div>
         <div>Alt: <p id="alt" style="display: inline-block;"></p></div>
         <h2>Destination</h2>
+        <div>Lat: <p id="dest_lat" style="display: inline-block;"></p> Lot: <p id="dest_lon" style="display: inline-block;"></p></div>
         <div>Elapsed time: <p id="dest_elapsed" style="display: inline-block;"></p></div>
-        <div>Lat: <p id="dest_lat" style="display: inline-block;"></p></div>
-        <div>Lot: <p id="dest_lon" style="display: inline-block;"></p></div>
         <div>Remaining: <p id="dest_remaining" style="display: inline-block;"></p></div>
         <div>Airspeed: <p id="dest_airspeed" style="display: inline-block;"></p></div>
         <h2>Received Messages</h2>
@@ -80,6 +83,10 @@
         }
         $("#send_arm").on("click",function(){
             ws.send("ARM");
+        });
+
+        $("#send_rtl").on("click",function(){
+            ws.send("RTL");
         });
 
         $("#send_takeoff").on("click",function(){
