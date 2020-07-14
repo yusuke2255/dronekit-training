@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import vehicle_wrapper
 import argparse
+print "start"
 
 parser = argparse.ArgumentParser(
             prog='runner.py',
@@ -13,7 +14,9 @@ parser.add_argument('-i', '--ip', required=True)
 
 args = parser.parse_args()
 
-wrapper = vehicle_wrapper.VehicleWapper(args.ip)
+print "IP is %s" %args.ip
+
+wrapper = vehicle_wrapper.VehicleWrapper(args.ip)
 
 # ARM
 wrapper.arm_and_wait()

@@ -4,30 +4,94 @@
         <title>Document</title>
     </head>
     <body>
-        <h1>websocket chat</h1>
-
-        <input type="text" id="msg" value="> message"/>
-        <button id="sendBtn">send</button>
+        <h1>drone-kit training</h1>
+        <div>
+            <button id="send_arm">ARM</button>
+        </div>
+        <div>
+            <input type="text" id="text_alt" value="30"/>
+            <button id="send_takeoff">Takeoff</button>
+        </div>
+        <div>
+            <select id="text_goto_direction">
+                <option value="north">North</option>
+                <option value="south">South</option>
+                <option value="east">East</option>
+                <option value="west">West</option>
+            </select>
+            <input type="text" id="text_goto_dist" value="100"/>
+            <button id="send_goto">go</button>
+        </div>
+        <h2>Attributes</h2>
+        <div>Arm: <p id="arm" style="display: inline-block;"></p></div>
+        <div>Lat: <p id="lat" style="display: inline-block;"></p></div>
+        <div>Lon: <p id="lon" style="display: inline-block;"></p></div>
+        <div>Alt: <p id="alt" style="display: inline-block;"></p></div>
+        <h2>Destination</h2>
+        <div>Elapsed time: <p id="dest_elapsed" style="display: inline-block;"></p></div>
+        <div>Lat: <p id="dest_lat" style="display: inline-block;"></p></div>
+        <div>Lot: <p id="dest_lon" style="display: inline-block;"></p></div>
+        <div>Remaining: <p id="dest_remaining" style="display: inline-block;"></p></div>
+        <div>Airspeed: <p id="dest_airspeed" style="display: inline-block;"></p></div>
+        <h2>Received Messages</h2>
         <ul id="rcv"></ul>
     </body>
 
     <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
     <script type="text/javascript">
-        var host = "ws://localhost:8080/pipe";
-        var ws = new WebSocket(host);
+        const host = "ws://localhost:8080/pipe";
+        const ws = new WebSocket(host);
 
         ws.onmessage = function(message){
-            var message_data = JSON.parse(message.data);
-            var time = message_data['time'];
-            var message = message_data['message'];
+            let data
+            try {
+                data = JSON.parse(message.data)
+            } catch (e) {
+                return
+            }
+            if (data.event === 'change_attr' ) {
+                onChangeAttr(data)
+            }
 
-            var string_txt = "[" + time + "] - " + message
-            $("#rcv").append("<li>" + string_txt + "</li>")
+            if (data.event === 'going' ) {
+                $("#dest_elapsed").text(data.value.elapsed)
+                $("#dest_remaining").text(data.value.remaining)
+                $("#dest_lat").text(data.value.destination.lat)
+                $("#dest_lon").text(data.value.destination.lon)
+            }
+
+            if (data.event === 'message') {
+                $("#rcv").append("<li>" + data.value + "</li>")
+            }
         }
 
-        $("#sendBtn").on("click",function(){
-            message = $("#msg").val()
-            ws.send(message);
+        const onChangeAttr = (data) => {
+            if (data.attr === 'location.global_frame') {
+                $("#lat").text(data.value.lat)
+                $("#lon").text(data.value.lon)
+                $("#alt").text(data.value.alt)
+            } else if (data.attr === 'armed') {
+                if (data.value) {
+                    $("#arm").text('ARM')
+                } else {
+                    $("#arm").text('DISARM')
+                }
+            }
+        }
+        $("#send_arm").on("click",function(){
+            ws.send("ARM");
         });
+
+        $("#send_takeoff").on("click",function(){
+            const alt = $("#text_alt").val()
+            ws.send(`Take off to altitude ${alt}m`);
+        });
+
+        $("#send_goto").on("click",function(){
+            const direction = $("#text_goto_direction").val()
+            const distance = $("#text_goto_dist").val()
+            ws.send(`Go to ${direction} ${distance}m`);
+        });
+
     </script>
 </html>
